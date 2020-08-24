@@ -83,7 +83,7 @@ class main(data):
                     for j in range(2, len(temptures[i])):
                         if (temptures[i][j + 1]) > (temptures[i][j]):
                             init_tempture = float(temptures[i][j + 1])
-                            tempture2 = float(temptures[i][j + 36])
+                            tempture2 = float(temptures[i][j + 12])
 
                             final_tempture = 0
                             slope = 1
@@ -103,7 +103,7 @@ class main(data):
                                 datas[k][1] = keys[0] # Product
                                 datas[k][2] = temptures[i][0] #熱偶線
                                 datas[k][3] = init_tempture #初始溫度
-                                datas[k][4] = tempture2  #2 小時後溫度
+                                datas[k][4] = (tempture2-init_tempture)/12  #2 小時後溫度
                                 datas[k][5] = hold_tempture # 持溫溫度
                                 datas[k][6] = hold_time #持溫時間
                                 print(self)

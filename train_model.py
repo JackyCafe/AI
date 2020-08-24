@@ -9,15 +9,15 @@ from sklearn.metrics import accuracy_score
 
 # 載入X,Y 資料
 df = pd.read_csv("param.csv")
-X =  pd.DataFrame(df.to_numpy()[:,1:7],columns=["Product", "Pt", "Init_tempture","Tempture2 ","Hold_tempture","Hold_time"])
-Y =  pd.DataFrame(df.to_numpy()[:,0:1],columns=["Group"])
+#X =  pd.DataFrame(df.to_numpy()[:,1:7],columns=["Product", "Pt", "Init_tempture","Tempture2 ","Hold_tempture","Hold_time"])
+#Y =  pd.DataFrame(df.to_numpy()[:,0:1],columns=["Group"])
 #Y =  pd.DataFrame(df.to_numpy()[:,5:6],columns=["Group_num"])
 #將X,Y 資料合併
-tempture_datas =  pd.concat([X,Y],axis = 1)
+tempture_datas =  pd.DataFrame(df,columns=["Group", "Product", "Pt", "Init_tempture","Tempture2 ","Hold_tempture","Hold_time"])
 
 #分為
 X_train,X_test,Y_base_train,Y_base_test = train_test_split(
-     tempture_datas[["Product", "Pt", "Init_tempture","Tempture2 ","Hold_tempture","Hold_time"]],tempture_datas[['Group']]
+     tempture_datas[["Group","Product",  "Init_tempture","Tempture2 ","Hold_tempture","Hold_time"]],tempture_datas[['Pt']]
     ,test_size=0.2,random_state=0)
 
 Y_train = np.array(Y_base_train).ravel()
@@ -35,7 +35,7 @@ svm.fit(X_train_std,Y_train)
 
 X_test_predict = svm.predict(X_test_std)
 score = accuracy_score(Y_test,X_test_predict)
-print(f"初始溫度 ：accuracy_score:{score}")
+print(f"初始溫度 ==>熱偶線 ：accuracy_score:{score}")
 
 #初始溫度+6小時斜率
 sc.fit(X_train.to_numpy()[:,2:4])
@@ -46,35 +46,42 @@ svm = SVC(kernel='rbf',verbose=False)
 svm.fit(X_train_std,Y_train)
 X_test_predict = svm.predict(X_test_std)
 score = accuracy_score(Y_test,X_test_predict)
-print(f"初始溫度+6小時斜率 ：accuracy_score:{score}")
+print(f"初始溫度+6小時斜率 ==>熱偶線：accuracy_score:{score}")
 
-#初始溫度+6小時斜率＋持溫溫度
-sc.fit(X_train.to_numpy()[:,2:5])
-X_train_std = sc.transform(X_train.to_numpy()[:,2:5])
-X_test_std  = sc.transform(X_test.to_numpy()[:,2:5])
-# #
-svm = SVC(kernel='rbf',verbose=False)
-svm.fit(X_train_std,Y_train)
-X_test_predict = svm.predict(X_test_std)
-score = accuracy_score(Y_test,X_test_predict)
-print(f"初始溫度+6小時斜率+持溫溫度 ：accuracy_score:{score}")
-
-
-#初始溫度+6小時斜率＋持溫溫度＋持溫時間
-sc.fit(X_train.to_numpy()[:,2:6])
-X_train_std = sc.transform(X_train.to_numpy()[:,2:6])
-X_test_std  = sc.transform(X_test.to_numpy()[:,2:6])
-# #
-svm = SVC(kernel='rbf',verbose=False)
-svm.fit(X_train_std,Y_train)
-X_test_predict = svm.predict(X_test_std)
-score = accuracy_score(Y_test,X_test_predict)
-print(f"初始溫度+6小時斜率+持溫溫度+持溫時間 ：accuracy_score:{score}")
+product_series = pd.Series(X_test.get('Product').to_numpy())
+group_series = pd.Series(X_test.get('Group').to_numpy())
 test_series = pd.Series(Y_test)
 predict_series = pd.Series(X_test_predict)
-df1 = pd.DataFrame({'test':test_series,'predict_series':predict_series})
+
+df1 = pd.DataFrame({'Product':product_series,'Group': group_series,'test':test_series,'predict_series':predict_series})
 df1.to_csv('result.csv',index=False)
 
+
+#
+#
+# #初始溫度+6小時斜率＋持溫溫度
+# sc.fit(X_train.to_numpy()[:,2:5])
+# X_train_std = sc.transform(X_train.to_numpy()[:,2:5])
+# X_test_std  = sc.transform(X_test.to_numpy()[:,2:5])
+# # #
+# svm = SVC(kernel='rbf',verbose=False)
+# svm.fit(X_train_std,Y_train)
+# X_test_predict = svm.predict(X_test_std)
+# score = accuracy_score(Y_test,X_test_predict)
+# print(f"初始溫度+6小時斜率+持溫溫度 ==>熱偶線：accuracy_score:{score}")
+#
+#
+# #初始溫度+6小時斜率＋持溫溫度＋持溫時間
+# sc.fit(X_train.to_numpy()[:,2:6])
+# X_train_std = sc.transform(X_train.to_numpy()[:,2:6])
+# X_test_std  = sc.transform(X_test.to_numpy()[:,2:6])
+# # #
+# svm = SVC(kernel='rbf',verbose=False)
+# svm.fit(X_train_std,Y_train)
+# X_test_predict = svm.predict(X_test_std)
+# score = accuracy_score(Y_test,X_test_predict)
+# print(f"初始溫度+6小時斜率+持溫溫度+持溫時間  ==>熱偶線：accuracy_score:{score}")
+#
 
 
 def plot_decision_regions(X,y,resolution=0.02 ):
