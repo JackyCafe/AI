@@ -8,7 +8,7 @@ from data_collect.data_struct import data
 import csv
 import numpy as np
 
-path = 'AI/'
+path = '../AI/'
 workspaces = os.walk(path)
 allfiles = []
 group_list = {'G01_715':1,
@@ -23,7 +23,6 @@ group_list = {'G01_715':1,
  }
 
 product_list = {
-
 'A11887':	1,
 'A121151':	2,
 'A314222':	3,
@@ -54,14 +53,57 @@ product_list = {
 'A9017':	28,
 'A913844':	29,
 'A927695':	30
+}
 
+
+pt_list ={
+    'PTC1':1,
+    'PTC2':2,
+    'PTC3': 3,
+    'PTC4': 4,
+    'PTC5': 5,
+    'PTC6': 6,
+    'PTC7': 7,
+    'PTC8': 8,
+    'PTC9': 9,
+    'PTC10': 10,
+    'PTC11': 11,
+    'PTC12': 12,
+    'PTC13': 13,
+    'PTC14': 14,
+    'PTC15': 15,
+    'PTC16': 16,
+    'PTC17': 17,
+    'PTC18': 18,
+    'PTC19': 19,
+    'PTC20': 20,
+    'PTC21': 21,
+    'PTC22': 22,
+    'PTC23': 23,
+    'PTC24': 24,
+    'PTC25': 25,
+    'PTC26': 26,
+    'PTC27': 27,
+    'PTC28': 28,
+    'PTC29': 29,
+    'PTC30': 30,
+    'PTC31': 31,
+    'PTC32': 32,
+    'PTC33': 33,
+    'PTC34': 34,
+    'PTC35': 35,
+    'PTC36': 36,
+    'PTC37': 37,
+    'PTC38': 38,
+    'PTC39': 39,
+    'PTC40': 40
 }
 
 class main(data):
 
     # 將檔案載入allfiles
     def load_file(self) -> DataFrame:
-        datas = [[0 for i in range(7)] for j in range(5000)]
+        datas = [[0 for i in range(5)] for j in range(2190)]
         for root, dirs, files in workspaces:
             for file in files:
                 allfiles.append(f'{root}/{file}')
@@ -83,29 +125,38 @@ class main(data):
                     for j in range(2, len(temptures[i])):
                         if (temptures[i][j + 1]) > (temptures[i][j]):
                             init_tempture = float(temptures[i][j + 1])
-                            tempture2 = float(temptures[i][j + 12])
+                            tempture2 = float(temptures[i][j + 36])
+                            slope = tempture2-init_tempture
 
-                            final_tempture = 0
-                            slope = 1
-                            for h in range (j+36,100):
-                                if (temptures[i][h]==temptures[i][h+1]):
-                                    hold_tempture =  float(temptures[i][h+1])
-                                    hold_time = len(temptures[i])-h
-                                    #slope = (final_tempture - init_tempture)
-                            if hold_tempture > 0 :
+
+                            # for h in range (j+36,100):
+                            #     if (temptures[i][h]==temptures[i][h+1]):
+                            #         hold_tempture =  float(temptures[i][h+1])
+                            #         hold_time = len(temptures[i])-h
+                            #         #slope = (final_tempture - init_tempture)
+                            if slope > 0 :
                                 self.f = file
-                                self.group = file[3: file.find("\\", 3)]
+                                self.group = file[6: file.find("\\", 3)]
                                 self.product = keys[0]
                                 self.pt = temptures[i][0]
                                 self.init_temp = init_tempture
                                 self.slope = slope
-                                datas[k][0] = file[3: file.find("\\", 3)] #Group
-                                datas[k][1] = keys[0] # Product
-                                datas[k][2] = temptures[i][0] #熱偶線
+
+                                #---------------------------------------------------------------
+                                #-----  產品分群組
+                                #-----
+                                #--------------------------------------------------------------
+                                datas[k][0] = file[6: file.find("\\", 3)] #Group
+                                datas[k][1] = product_list.get(keys[0]) # Product
+                                datas[k][2] = pt_list.get(temptures[i][0]) #熱偶線
                                 datas[k][3] = init_tempture #初始溫度
-                                datas[k][4] = (tempture2-init_tempture)/12  #2 小時後溫度
-                                datas[k][5] = hold_tempture # 持溫溫度
-                                datas[k][6] = hold_time #持溫時間
+                                datas[k][4] = slope  #4 小時後斜率
+                                # datas[k][5] = hold_tempture  # 4小時溫度
+                                # #datas[k][5] = hold_tempture # 持溫溫度
+                                # datas[k][6] = hold_time #持溫時間
+
+
+
                                 print(self)
                                 k = k + 1
                             break
@@ -113,11 +164,11 @@ class main(data):
         except EmptyDataError:
             print(file)
         except Exception as e:
-                print(e)
+            print(e)
 
 
         out = pd.DataFrame(np.array(datas))
-        out.to_csv("./param.csv", index=False, header=["Group", "Product", "Pt", "Init_tempture","Tempture2 ","Hold_tempture","Hold_time"])
+        out.to_csv("../csv/param/tempture2group.csv", index=False, header=["Group", "Product", "Pt", "Init_tempture","Tempture2"])
 
         print('OK')
 
